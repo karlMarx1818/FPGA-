@@ -1,0 +1,1 @@
+Warning (10268): Verilog HDL information at f_measure.v(42): always construct contains both blocking and non-blocking assignments File: D:/OneDrive - eduhk/whu/EI/FPGA/f_measure/f_measure.v Line: 42

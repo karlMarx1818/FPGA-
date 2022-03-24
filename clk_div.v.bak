@@ -1,0 +1,96 @@
+`timescale 1 ns/ 1 ns
+module clk_div
+(
+	input clk_50M,
+	input rst,
+	input [7:0] sw,
+	output reg signal
+	);
+	
+	reg	sig1,sig2;wire sig100,sig200,sig300;
+	reg [31:0]cnt;reg [6:0]cnt2;
+	//output reg	sig1,sig2;
+	always @(posedge clk_50M or negedge rst )//2*n分频,cnt belong [0,n-1]
+	begin	
+		if(!rst)
+		begin
+			sig1 <= 0;
+			cnt <= 0;
+		end
+		else if(sw==0)//10M
+		begin
+			cnt<= (cnt<4)?(cnt+1):0;
+			sig1<=(cnt<2)?1:0;
+		end
+		else if(sw==1)//1hz
+		begin
+			cnt<= (cnt==24999999)?0:(cnt+1);
+			//signal<=(cnt)?signal:(~signal);
+			sig1<=(cnt)?sig1:(~sig1);
+		end
+		else if(sw==2)//1khz
+		begin
+			cnt<= (cnt==24999)?0:(cnt+1);
+			//signal<=(cnt)?signal:(~signal);
+			sig1<=(cnt)?sig1:(~sig1);
+		end
+		else if(sw==4)//441hz,T/2=1133ns
+		begin
+			cnt<= (cnt==56689)?0:(cnt+1);
+			//signal<=(cnt)?signal:(~signal);
+			sig1<=(cnt)?sig1:(~sig1);
+		end
+		else if(sw==8)//25/24hz
+		begin
+			cnt<= (cnt==23999999)?0:(cnt+1);
+			//signal<=(cnt)?signal:(~signal);
+			sig1<=(cnt)?sig1:(~sig1);
+		end
+		else if(sw==16)//1Mhz
+		begin
+			cnt<= (cnt==24)?0:(cnt+1);
+			//signal<=(cnt)?signal:(~signal);
+			sig1<=(cnt)?sig1:(~sig1);
+		end
+		else if(sw==32)//25Mhz
+		begin
+			sig1<=~sig1;
+		end
+	end
+	
+	always @(negedge clk_50M or negedge rst )
+	begin
+		if(!rst)
+		begin
+			sig2 <= 0;
+			cnt2 <= 0;
+		end
+		else if(sw==0)//10M
+		begin
+			cnt2<= (cnt2<4)?(cnt2+1):0;
+			sig2<=(cnt2<2)?1:0;
+		end
+		/*else if(sw==32)//2Mhz
+		begin
+			cnt2<= (cnt2<24)?(cnt2+1):0;
+			sig2<=(cnt2<12)?1:0;
+		end*/
+		
+	end
+	pll_200M	pll_200M_i1
+	(
+	.inclk0(clk),  .c0(sig100),
+	.c1(sig200),        .c2(sig300)
+	);
+	always @(*) 
+	begin
+		//if((sw==0)||(sw==32))
+		if(sw==0)
+			signal=sig1|sig2;
+		else if(sw==64)signal=sig100;
+		else if(sw==128)signal=sig200;
+		else if(sw==192)signal=sig300;
+		else signal=sig1;
+	end
+	endmodule
+	

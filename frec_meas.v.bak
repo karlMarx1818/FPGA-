@@ -1,0 +1,27 @@
+`timescale 1 ns/ 1 ns
+module frec_meas (
+    input clk,          input rst,
+    input [7:0]sw,      input signal_in,
+    output signal_out,  output gate_out,
+    output [31:0]M,     output [31:0]N,
+    output [31:0]frec
+);
+
+//wire gate_out_wire;
+//assign gate_out_wire = gate_out;
+    clk_div	clk_div_i1
+(
+	.clk_50M(clk),  .rst(rst),
+	.sw(sw),        .signal(signal_out)
+	);
+    measure  measure_i1
+(
+    .clk(clk),          .rst(rst),
+    .sig_in(signal_in), .gate_out(gate_out),
+    .M(M),              .N(N),
+	.frec(frec)	
+
+);
+//assign signal_in=signal_out;
+
+endmodule
